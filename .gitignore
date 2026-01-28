@@ -3,3 +3,6 @@
 
 # step 2: include certain things selectively
 !.gitignore
+
+!fig5_deep_learning/config/config.yaml
+
