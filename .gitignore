@@ -1,9 +1,14 @@
+########################################
 # step 1: ignore everything by default
+########################################
 *
 
+###############################################
 # step 2: include certain things selectively
+###############################################
 !.gitignore
 
+# step2.1: figure 5 inclusion
 !fig5_deep_learning/
 
 !fig5_deep_learning/config/
@@ -27,3 +32,8 @@
 !fig5_deep_learning/workflow/slurm_scripts/
 !fig5_deep_learning/workflow/rules/*.smk
 !fig5_deep_learning/workflow/slurm_scripts/*.slurm
+
+# step 2.2: all plotting code inclusion
+!all_plotting/
+!all_plotting/fig5_deep_learning/**
+
