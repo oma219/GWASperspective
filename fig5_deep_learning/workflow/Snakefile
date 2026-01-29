@@ -1,0 +1,84 @@
+######################################################
+# Name: Snakefile
+# Description: Main workflow file for repository
+# Date: December 17th, 2025
+######################################################
+
+configfile: "config/config.yaml"
+
+import os
+import glob
+
+################################################
+# make sure the working directory is specified
+################################################
+if config['WORK_DIR'] == "":
+    raise Exception("WORK_DIR is not specified in config.yaml")
+if config['DATA_DIR'] == "":
+    raise Exception("DATA_DIR is not specified in config.yaml")
+if config['REPO_DIR'] == "":
+    raise Exception("DATA_DIR is not specified in config.yaml")
+
+##############################
+# load in general parameters
+##############################
+work_dir = config['WORK_DIR']
+data_dir = config['DATA_DIR']
+repo_dir = config['REPO_DIR']
+
+hg38_genome = os.path.join(data_dir, "genome/hg38.fa")
+hg38_chrom_sizes = os.path.join(data_dir, "genome/hg38.chrom.sizes")
+
+dbSNP_all = os.path.join(data_dir, "dbsnp_data/dbsnp_151_grch37/00-All.vcf.gz")
+dbSNP_all_index = os.path.join(data_dir, "dbsnp_data/dbsnp_151_grch37/00-All.vcf.gz.tbi")
+dbSNP_common = os.path.join(data_dir, "dbsnp_data/dbsnp_151_grch37/00-common_all.vcf.gz")
+dbSNP_common_index = os.path.join(data_dir, "dbsnp_data/dbsnp_151_grch37/00-common_all.vcf.gz.tbi")
+
+###########################################
+# load in alphagenome specific parameters
+###########################################
+alphagenome_api_key = config['ALPHAGENOME_API_KEY']
+
+###########################################
+# load in borzoi specific parameters
+###########################################
+borzoi_model = os.path.join(data_dir, config['BORZOI_MODEL'])
+borzoi_model_params = os.path.join(data_dir, config['BORZOI_MODEL_PARAMS'])
+
+###########################################
+# load in gpn msa specific parameters
+###########################################
+gpn_msa_hg38_scores = os.path.join(data_dir, config['GPN_MSA_HG38_SCORES'])
+
+###########################################
+# load in chrombpnet specific parameters
+###########################################
+chrombpnet_repo_dir = config['CHROMBPNET_REPO_DIR']
+chrombpnet_num_folds = int(config['CHROMBPNET_NUM_FOLDS'])
+
+###############################################################################
+# IMPORTANT: Sets the working directory based on configuration parameter, and 
+#            it can be set on command-line using --config WORK_DIR=""
+###############################################################################
+workdir: work_dir
+
+############################
+# Imports rules in modules
+############################
+include: "rules/alphagenome_vep.smk"
+include: "rules/borzoi_vep.smk"
+include: "rules/enformer_vep.smk"
+include: "rules/borzoi_prime_vep.smk"
+include: "rules/gpn_msa_vep.smk"
+include: "rules/chrombpnet_vep.smk"
+
+include: "rules/preprocess_traitgym_datasets.smk"
+include: "rules/analyze_traitgym_datasets_vep.smk"
+
+include: "rules/preprocess_stingseq_variants.smk"
+include: "rules/analyze_stingseq_datasets_vep.smk"
+
+include: "rules/preprocess_stingseq_gwas_loci.smk"
+include: "rules/analyze_stingseq_gwas_loci.smk"
+
+include: "rules/extract_specific_stingseq_gwas_loci.smk"

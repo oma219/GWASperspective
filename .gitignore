@@ -4,5 +4,26 @@
 # step 2: include certain things selectively
 !.gitignore
 
-!fig5_deep_learning/config/config.yaml
+!fig5_deep_learning/
 
+!fig5_deep_learning/config/
+!fig5_deep_learning/config/*
+
+!fig5_deep_learning/data/
+!fig5_deep_learning/data/README.md
+
+!fig5_deep_learning/envs/
+!fig5_deep_learning/envs/*.yaml
+
+!fig5_deep_learning/results/
+!fig5_deep_learning/results/README.md
+
+!fig5_deep_learning/src/
+!fig5_deep_learning/src/*py
+
+!fig5_deep_learning/workflow/
+!fig5_deep_learning/workflow/Snakefile
+!fig5_deep_learning/workflow/rules/
+!fig5_deep_learning/workflow/slurm_scripts/
+!fig5_deep_learning/workflow/rules/*.smk
+!fig5_deep_learning/workflow/slurm_scripts/*.slurm

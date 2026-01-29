@@ -1,0 +1,10 @@
+WORK_DIR: "/gpfs/commons/groups/sanjana_lab/oahmed/gwas_perspective/fig5_deep_learning/results"
+DATA_DIR: "/gpfs/commons/groups/sanjana_lab/oahmed/gwas_perspective/fig5_deep_learning/data"
+REPO_DIR: "/gpfs/commons/groups/sanjana_lab/oahmed/gwas_perspective/fig5_deep_learning"
+
+ALPHAGENOME_API_KEY: "AIzaSyAE_fuWJrmSv9sGaGoKfiCG_oBgkMgGjek"
+BORZOI_MODEL: "borzoi_models/borzoi/model0_best.h5"
+BORZOI_MODEL_PARAMS: "borzoi_models/borzoi/params.json"
+GPN_MSA_HG38_SCORES: "gpn_msa_data/precomputed_hg38_scores/scores.tsv.bgz"
+CHROMBPNET_REPO_DIR: "~/variant-scorer"
+CHROMBPNET_NUM_FOLDS: 5
