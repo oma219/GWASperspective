@@ -152,15 +152,6 @@ ggsave(paste(output_dir, "traitgym-plot1-omim_auprc_comparison.pdf", sep=""),
        units=c("in"),
        dpi=600)
 
-ggsave(paste(output_dir, "traitgym-plot1-omim_auprc_comparison.svg", sep=""),
-       device="svg",
-       plot=plot_3,
-       height=4,
-       width=10,
-       units=c("in"),
-       dpi=600)
-
-
 #########################################################
 # plot 4, 5, 6: auprc values across tools on GWAS dataset
 #               - plot 4: homebrew
@@ -290,14 +281,6 @@ plot_6
 
 ggsave(paste(output_dir, "traitgym-plot2-gwas_auprc_comparison.pdf", sep=""),
        device="pdf",
-       plot=plot_6,
-       height=4,
-       width=10,
-       units=c("in"),
-       dpi=600)
-
-ggsave(paste(output_dir, "traitgym-plot2-gwas_auprc_comparison.svg", sep=""),
-       device="svg",
        plot=plot_6,
        height=4,
        width=10,
