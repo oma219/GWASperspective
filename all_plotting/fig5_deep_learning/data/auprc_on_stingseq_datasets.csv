@@ -1,0 +1,7 @@
+dataset,tool,author,auprc
+stingseq,alphagenome,homebrew,0.3518
+stingseq,borzoi,homebrew,0.3277
+stingseq,borzoi_prime,homebrew,0.3571
+stingseq,enformer,homebrew,0.3262
+stingseq,chrombpnet,homebrew,0.2917
+stingseq,gpn_msa,homebrew,0.2567
