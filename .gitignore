@@ -35,6 +35,38 @@
 
 # step 2.2: all plotting code inclusion
 !all_plotting/
-!all_plotting/fig5_deep_learning/**
+!all_plotting/** 
 
-!all_plotting/fig2_data_limitations/**
+# step2.3: figure 1 inclusion
+!fig1_example_gwas/
+
+!fig1_example_gwas/src
+!fig1_example_gwas/src/**
+
+# step2.4: figure 2 inclusion
+!fig2_data_limitations/
+
+!fig2_data_limitations/code
+!fig2_data_limitations/plots
+
+!fig2_data_limitations/code/**
+!fig2_data_limitations/plots/**
+
+# step2.5: figure 3 inclusion
+!fig3_ld_dropout/
+
+!fig3_ld_dropout/ld_dropout_simulation/
+!fig3_ld_dropout/ld_dropout_simulation/plots
+!fig3_ld_dropout/ld_dropout_simulation/src
+!fig3_ld_dropout/ld_dropout_simulation/plots/**
+!fig3_ld_dropout/ld_dropout_simulation/src/**
+
+# step2.6: figure 4 inclusion
+!fig4_coloc_and_func/
+!fig4_coloc_and_func/func_fm_example/README.md
+!fig4_coloc_and_func/gwas_eqtl_example/README.md
+!fig4_coloc_and_func/hyprcoloc_example/
+!fig4_coloc_and_func/hyprcoloc_example/src/
+!fig4_coloc_and_func/hyprcoloc_example/src/README.md
+
+
