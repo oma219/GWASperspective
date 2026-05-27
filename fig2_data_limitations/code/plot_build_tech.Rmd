@@ -1,0 +1,312 @@
+---
+title: "plotting_builds"
+output: html_document
+date: "2025-11-30"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+library(dplyr)
+library(ggplot2)
+
+df <- read_xlsx("/gpfs/commons/groups/sanjana_lab/nsaravanan/BUILDS_AND_TECH (2).xlsx", col_names = FALSE)
+colnames(df)<- c("name", "build", "tech", "numtech", "study")
+
+counts_builds <- df %>%
+  count(!!sym(colnames(df)[2]), name = "count") %>%
+  rename(build = 1)
+custom_colors <- c("#8da0cb", "#fc8d62", "#66c2a5")
+label_map <- setNames(counts_builds$build, counts_builds$build)
+
+max_y <- max(counts_builds$count)
+ylim_top <- max_y * 1.15
+
+plot_builds <- ggplot(counts_builds, aes(x = build, y = count, fill = build)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5, size = 7) +
+  scale_fill_manual(values = custom_colors) +
+  scale_x_discrete(labels = label_map) +
+  scale_y_continuous(limits=c(0, ylim_top), expand=c(0,0)) +
+  theme_classic() +
+  labs(x = "Genome build",
+       y = "Studies") +
+  theme(
+    axis.line = element_line(linewidth = 1),
+    axis.ticks = element_line(linewidth = 1, color = "black"),
+    axis.ticks.length = unit(0.25, "cm"),
+    axis.title = element_text(size = 16),
+    axis.text = element_text(size = 16, color = "black"),
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    legend.position = "none",
+    plot.margin = margin(0.5,1,0.5,0.5,"cm")
+  )
+
+counts_tech <- df %>%
+  count(!!sym(colnames(df)[4]), name = "count") %>%
+  rename(tech = 1)
+
+label_map2 <- setNames(counts_tech$tech, counts_tech$tech)
+
+max_y2 <- max(counts_tech$count)
+ylim_top2 <- max_y2 * 1.15
+
+plot_tech <- ggplot(counts_tech, aes(x = tech, y = count, fill = tech)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5, size = 7) +
+  scale_fill_manual(values = custom_colors) +
+  scale_x_discrete(labels = c(
+    "1.0" = "1",
+    "2.0" = "2",
+    "3.0" = "3+",
+    "3+" = "3+"
+  )) +
+  scale_y_continuous(limits=c(0, ylim_top2), expand=c(0,0)) +
+  theme_classic() +
+  labs(x = "Genotyping chips",
+       y = "Studies") +
+  theme(
+    axis.line = element_line(linewidth = 1),
+    axis.ticks = element_line(linewidth = 1, color = "black"),
+    axis.ticks.length = unit(0.25, "cm"),
+    axis.title = element_text(size = 16),
+    axis.text = element_text(size = 16, color = "black"),
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    legend.position = "none",
+    plot.margin = margin(0.5,1,0.5,0.5,"cm")
+  )
+
+plot_builds
+plot_tech
+
+# Directory containing the Excel file
+outdir <- "/gpfs/commons/groups/sanjana_lab/nsaravanan/"
+
+# ---- Save genome build plot ----
+pdf(file.path(outdir, "plot_builds.pdf"), width=6, height=5)
+plot_builds
+dev.off()
+
+# ---- Save technologies plot ----
+pdf(file.path(outdir, "plot_tech.pdf"), width=6, height=5)
+plot_tech
+dev.off()
+
+```
+
+```{r}
+library(dplyr)
+library(stringr)
+snp_density <- read.csv(paste("/gpfs/commons/groups/sanjana_lab/oahmed/gwas_perspective/fig2_data_limitations/data/snp_density_per_study.csv", sep=""), header=FALSE)
+
+# Create a vector of matches: for each row of df find which snp_density row matches
+match_idx <- sapply(df[[5]], function(x) {
+  # find rows where either contains the other
+  hits <- which(
+    str_detect(snp_density[[1]], fixed(x)) |
+    str_detect(x, fixed(snp_density[[1]]))
+  )
+  if (length(hits) == 0) return(NA_integer_)
+  return(hits[1])   # if multiple, take the first
+})
+
+# Extract column 2 from snp_density
+df$snp_density_col2 <- snp_density[[2]][match_idx]
+
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(stringr)
+
+# ---- Extract year from 'study' and prepare snp density ----
+df <- df %>%
+  mutate(
+    # pull substring before first underscore (the year)
+    year = str_extract(as.character(study), "^[0-9]+"),
+    year = as.numeric(year),
+    snp_density_numeric = suppressWarnings(as.numeric(snp_density_col2)),
+    snp_density_millions = snp_density_numeric / 1e6
+  )
+
+# continuous year range
+year_min <- 2008
+year_max <- 2024
+year_breaks <- seq(year_min, year_max, by = 2)
+
+plot_year <- ggplot(df, aes(
+  x = snp_density_millions,
+  y = year,
+  color = as.factor(build)
+)) +
+  geom_point(size = 3.2, alpha = 0.6) +   # ← transparency added
+  theme_classic() +
+  labs(
+    x = "SNPs in GWAS summary statistic (millions)",
+    y = "Year",
+    color = "Build"
+  ) +
+  # X-axis extended slightly to avoid point cutoff
+  scale_x_continuous(
+    expand = expansion(mult = c(0.02, 0.08)),  # small left pad, bigger right pad
+    breaks = scales::pretty_breaks(n = 6)
+  ) +
+  # continuous year axis
+  scale_y_continuous(
+    limits = c(year_min, year_max),
+    breaks = year_breaks,
+    labels = year_breaks
+  ) +
+  scale_color_brewer(palette = "Set1") +
+  theme(
+    axis.line = element_line(size = 1),
+    axis.ticks = element_line(size = 1),
+    axis.ticks.length = unit(0.25, "cm"),
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12, color = "black"),
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 10)
+  )
+
+plot_year
+
+
+ggsave(
+  filename = paste0("/gpfs/commons/groups/sanjana_lab/nsaravanan/fig2-panel_a_points_year.pdf"),
+  plot = plot_year,
+  device = cairo_pdf,
+  width = 6,
+  height = 4,
+  units = "in",
+  dpi = 600
+)
+
+
+```
+
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+
+############################################################
+# 1. Make sure the tech column exists and is character
+############################################################
+
+df <- df %>% mutate(tech = as.character(tech))
+
+############################################################
+# 2. Clean + split the giant messy tech column
+############################################################
+
+clean_tech <- function(x) {
+  x %>%
+    tolower() %>%
+    str_replace_all(" and ", ",") %>%       # replace "and" with comma
+    str_replace_all("\\(|\\)", "") %>%      # remove parentheses
+    str_replace_all("the ", "") %>%         # remove leading 'the'
+    str_replace_all("\"", "") %>%           # remove quotes
+    str_replace_all("\\s+", " ") %>%        # collapse multiple spaces
+    str_replace_all("\\s*,\\s*", ",") %>%   # normalize comma spacing
+    str_trim()
+}
+
+df_clean <- df %>%
+  mutate(tech_clean = clean_tech(tech)) %>%
+  mutate(tech_list = str_split(tech_clean, ",")) %>%
+  unnest(tech_list) %>%
+  mutate(tech_list = str_trim(tech_list)) %>%
+  filter(
+    tech_list != "",
+    !str_detect(tech_list, "^more$|more$|\\bmore\\b"),
+    !tech_list %in% c("3+", "10+", "plus", "like 10+"),
+    !str_detect(tech_list, "\\b(hrc|haplotype\\s*reference\\s*consortium)\\b"),
+    !str_detect(tech_list, "\\b(1000g|1kg|one\\s*thousand\\s*genomes|1000\\s*genomes|thousand\\s*genomes)\\b")
+  )
+
+############################################################
+# 3. Normalize common variants
+############################################################
+
+df_clean <- df_clean %>%
+  mutate(
+    tech_norm = case_when(
+      str_detect(tech_list, "immuno") ~ "ImmunoChip",
+      str_detect(tech_list, "omni zh?onghua") ~ "OmniZhongHua-8",
+      str_detect(tech_list, "gsa|global screening") ~ "GSA",
+      str_detect(tech_list, "asa|asian screening") ~ "ASA",
+      str_detect(tech_list, "omni1") ~ "Omni1",
+      str_detect(tech_list, "omni2\\.5") ~ "Omni2.5",
+
+      # EXOME-SPECIFIC (NO GENERIC 'exome' CATCH)
+      str_detect(tech_list, "coreexome") ~ "CoreExome",
+      str_detect(tech_list, "omniexpressexome") ~ "OmniExpressExome",
+      str_detect(tech_list, "humanexome") ~ "HumanExome",
+      str_detect(tech_list, "exome-8") ~ "Exome-8",
+      str_detect(tech_list, "exome beadchip") ~ "Exome BeadChip",
+
+      str_detect(tech_list, "hap550") ~ "HumanHap550",
+      str_detect(tech_list, "hap300") ~ "HumanHap300",
+      str_detect(tech_list, "affymetrix.*6\\.0") ~ "Affy 6.0",
+      str_detect(tech_list, "affymetrix.*5\\.0") ~ "Affy 5.0",
+      str_detect(tech_list, "axiom") ~ "Axiom",
+      str_detect(tech_list, "\\b1m\\b|1m-") ~ "1M",
+
+      TRUE ~ str_to_title(tech_list)
+    )
+  )
+
+############################################################
+# 4. Count chip frequency
+############################################################
+
+chip_counts <- df_clean %>%
+  count(tech_norm, name = "count") %>%
+  arrange(desc(count))
+
+############################################################
+# 5. Select top 10 for plotting
+############################################################
+
+top5 <- chip_counts %>% slice_head(n = 5)
+
+############################################################
+# 6. Plot
+############################################################
+
+plot_chips <- ggplot(top5, aes(x = reorder(tech_norm, count), y = count)) +
+  geom_col(fill = "#1f78b4") +
+  coord_flip() +
+  theme_classic() +
+  labs(
+    x = "Genotyping Platform",
+    y = "Count",
+    title = "Top 5 Most Common Genotyping Platforms"
+  ) +
+  theme(
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 12),
+    plot.title = element_text(size = 14, face = "bold")
+  )
+
+
+
+ggsave(
+  filename = paste0("/gpfs/commons/groups/sanjana_lab/nsaravanan/chips.pdf"),
+  plot = plot_chips,
+  device = cairo_pdf,
+  width = 10,
+  height = 4,
+  units = "in",
+  dpi = 600
+)
+
+```
+
