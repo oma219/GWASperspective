@@ -2,7 +2,7 @@
 
 Analysis code for the manuscript entitled "*Current challenges in GWAS integration and fine-mapping for variant interpretation*". In this manuscript, we document the current obstacles in utilizing GWAS for downstream functional experiments and varying approaches to combat these issues.
 
-This repo contains the scripts for running the analyses present in the manuscript along with the **plotting scripts** for the figures.
+This repo contains the scripts for **running the analyses** present in the manuscript along with the **plotting scripts** for the figures.
 
 ## Installation guide
 ```sh
@@ -40,4 +40,6 @@ ChromBPNet (v1.0.1) (https://github.com/kundajelab/chrombpnet)
 ```
 
 ## System requirements
-Our analysis code has been tested on Linux machines, it has not be tested on Windows/Mac yet. For the deep-learning related sections (Figure 5), GPUs are utilized to speed up computation however the code can be adapted to run on CPUs.
+Our analysis code has been tested on Linux machines, it has not be tested on Windows/Mac yet. 
+
+For the deep-learning related sections (Figure 5), GPUs are utilized to speed up computation however the code can be adapted to run on CPUs.
